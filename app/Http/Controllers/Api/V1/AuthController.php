@@ -49,4 +49,35 @@ class AuthController extends BaseController
             ], 500);
         }
     }
+
+    public function login(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                "email" => "required|email",
+                "password" => "required"
+            ]);
+
+            if ($validator->fails()) {
+                return $this->errorResponse([
+                    "errors" => $validator->errors()
+                ], 422);
+            }
+
+            if (Auth::attempt($request->only("email", "password"))) {
+                return $this->successResponse([
+                    "user" => Auth::user()
+                ]);
+            }
+
+            return $this->successResponse([
+                "user" => null
+            ]);
+        } catch (\Exception $e) {
+            return $this->errorResponse([
+                "exception" => get_class($e),
+                "message" => $e->getMessage()
+            ], 500);
+        }
+    }
 }
