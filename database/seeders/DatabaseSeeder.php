@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use App\Models\User;
 
 class DatabaseSeeder extends Seeder
 {
@@ -13,6 +14,11 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        // \App\Models\User::factory(10)->create();
+        $i = 1;
+        User::factory(200)->create()->each(function($user) use(&$i){
+            $user->email = "user_".$i."@gmail.com";
+            $user->update();
+            $i++;
+        });
     }
 }
