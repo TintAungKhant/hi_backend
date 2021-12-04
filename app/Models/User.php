@@ -45,7 +45,14 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function contacts(){
-        return $this->belongsToMany(User::class, "contact_user", "user_id", "contact_user_id");
+    const CONTACT_USER_TYPES = [
+        "waiting" => 1,
+        "deciding" => 2,
+        "friend" => 3
+    ];
+
+    public function contacts()
+    {
+        return $this->belongsToMany(User::class, "contact_user", "user_id", "contact_user_id")->withPivot("type");
     }
 }
