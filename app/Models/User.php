@@ -142,4 +142,10 @@ class User extends Authenticatable
             false
         );
     }
+
+    public function deleteContact(User $user)
+    {
+        $this->contacts()->detach($user->id);
+        $user->contacts()->detach($this->id);
+    }
 }
