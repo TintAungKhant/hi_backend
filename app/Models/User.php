@@ -64,4 +64,30 @@ class User extends Authenticatable
             }
         })->inRandomOrder()->take($limit)->get();
     }
+
+    public function getContacts(int $page = 1, int $limit = 20, ?int $type = null)
+    {
+        $offset = ($page - 1) * $limit;
+
+        $contacts =  $this->load([
+            "contacts" => function ($q) use ($offset, $limit, $type) {
+                if ($type == 1 || $type == 2) {
+                    $q->wherePivot("type", self::CONTACT_USER_TYPES["friend"])->where(function ($q2) use ($type) {
+                        if ($type == 1) {
+                            $q2->where("last_seen", ">=", \Carbon\Carbon::now()->subMinutes(2));
+                        } else if ($type == 2) {
+                            $q2->where("last_seen", "<=", \Carbon\Carbon::now()->subMinutes(2))->orWhere("last_seen", null);
+                        }
+                    });
+                } else if ($type == 3) {
+                    $q->wherePivot("type", self::CONTACT_USER_TYPES["deciding"]);
+                } else if ($type == 4) {
+                    $q->wherePivot("type", self::CONTACT_USER_TYPES["waiting"]);
+                }
+                $q->offset($offset)->limit($limit)->get();
+            }
+        ])->contacts;
+
+        return $contacts->each->makeHidden('pivot');
+    }
 }
