@@ -98,4 +98,29 @@ class ContactController extends BaseController
 
         return $this->errorResponse([], 200);
     }
+
+    public function reject(Request $request)
+    {
+        if (
+            !$this->validator($request->all(), [
+                "id" => "required"
+            ])
+        ) {
+            return $this->errorResponse([
+                "errors" => $this->validation_errors
+            ], 422);
+        }
+
+        $user = User::find($request->get("id"));
+        if ($user) {
+            $existing_contact = $this->auth_user->getContact($user, 2);
+            if ($existing_contact) {
+                $this->auth_user->deleteContact($user);
+
+                return $this->successResponse([]);
+            }
+        }
+
+        return $this->errorResponse([], 200);
+    }
 }
