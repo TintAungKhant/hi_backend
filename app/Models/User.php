@@ -90,4 +90,20 @@ class User extends Authenticatable
 
         return $contacts->each->makeHidden('pivot');
     }
+
+    public function getContact(User $user, ?int $pivot_type = null)
+    {
+        $contacts =  $this->load([
+            "contacts" => function ($q) use ($pivot_type, $user) {
+                if ($pivot_type) {
+                    $q->wherePivot("type", $pivot_type);
+                }
+                $q->find($user->id);
+            }
+        ])->contacts;
+
+        $contacts->each->makeHidden('pivot');
+        
+        return $contacts->first();
+    }
 }
