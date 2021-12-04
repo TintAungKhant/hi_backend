@@ -25,5 +25,6 @@ Route::group(["prefix" => "v1", "middleware" => "update_last_seen"], function ()
 
         Route::get("friends/explore", [\App\Http\Controllers\Api\V1\ContactController::class, "explore"]);
         Route::get("friends", [\App\Http\Controllers\Api\V1\ContactController::class, "contacts"]);
+        Route::post("friends/add", [\App\Http\Controllers\Api\V1\ContactController::class, "add"]);
     });
 });

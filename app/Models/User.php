@@ -106,4 +106,20 @@ class User extends Authenticatable
         
         return $contacts->first();
     }
+
+    public function addContact(User $user)
+    {
+        $this->contacts()->attach(
+            $user->id,
+            [
+                "type" => self::CONTACT_USER_TYPES["waiting"]
+            ]
+        );
+        $user->contacts()->attach(
+            $this->id,
+            [
+                "type" => self::CONTACT_USER_TYPES["deciding"]
+            ]
+        );
+    }
 }
