@@ -122,4 +122,24 @@ class User extends Authenticatable
             ]
         );
     }
+
+    public function acceptContact(User $user)
+    {
+        $this->contacts()->sync(
+            [
+                $user->id => [
+                    "type" => self::CONTACT_USER_TYPES["friend"]
+                ]
+            ],
+            false
+        );
+        $user->contacts()->sync(
+            [
+                $this->id => [
+                    "type" => self::CONTACT_USER_TYPES["friend"]
+                ]
+            ],
+            false
+        );
+    }
 }
