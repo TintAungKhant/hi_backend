@@ -30,5 +30,6 @@ Route::group(["prefix" => "v1", "middleware" => "update_last_seen"], function ()
         Route::post("friends/delete", [\App\Http\Controllers\Api\V1\ContactController::class, "delete"]);
 
         Route::get("profile", [\App\Http\Controllers\Api\V1\ProfileController::class, "get"]);
+        Route::post("profile", [\App\Http\Controllers\Api\V1\ProfileController::class, "update"]);
     });
 });
