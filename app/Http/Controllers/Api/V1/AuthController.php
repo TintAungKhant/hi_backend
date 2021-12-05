@@ -18,6 +18,7 @@ class AuthController extends BaseController
         try {
             $validator = Validator::make($request->all(), [
                 "name" => "required",
+                "gender" => "required",
                 "birthday" => "required",
                 "email" => "required|email|unique:users",
                 "password" => "required|confirmed"
@@ -32,6 +33,7 @@ class AuthController extends BaseController
             $user = User::create([
                 "name" => $request->get("name"),
                 "birthday" => $request->get("birthday"),
+                "gender" => $request->get("gender"),
                 "avatar_url" => $request->get("avatar_url"),
                 "email" => $request->get("email"),
                 "password" => Hash::make($request->get("password")),
