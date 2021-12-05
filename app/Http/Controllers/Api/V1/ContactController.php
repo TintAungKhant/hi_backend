@@ -2,6 +2,11 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Requests\Api\V1\AcceptContactRequest;
+use App\Http\Requests\Api\V1\AddContactRequest;
+use App\Http\Requests\Api\V1\DeleteContactRequest;
+use App\Http\Requests\Api\V1\ExploreContactsRequest;
+use App\Http\Requests\Api\V1\GetContactsRequest;
 use App\Models\User;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\Request;
@@ -10,18 +15,8 @@ class ContactController extends BaseController
 {
     use ApiResponseTrait;
 
-    public function explore(Request $request)
+    public function explore(ExploreContactsRequest $request)
     {
-        if (
-            !$this->validator($request->all(), [
-                "gender" => "nullable|integer"
-            ])
-        ) {
-            return $this->errorResponse([
-                "errors" => $this->validation_errors
-            ], 422);
-        }
-
         $contacts = $this->auth_user->getNewContacts($request->get("gender"));
 
         return $this->successResponse([
@@ -29,19 +24,8 @@ class ContactController extends BaseController
         ]);
     }
 
-    public function contacts(Request $request)
+    public function contacts(GetContactsRequest $request)
     {
-        if (
-            !$this->validator($request->all(), [
-                "page" => "nullable|integer|min:1",
-                "limit" => "nullable|integer|min:1"
-            ])
-        ) {
-            return $this->errorResponse([
-                "errors" => $this->validation_errors
-            ], 422);
-        }
-
         $contacts = $this->auth_user->getContacts($request->get("page", 1), $request->get("limit", 20), $request->get("type"));
 
         return $this->successResponse([
@@ -49,18 +33,8 @@ class ContactController extends BaseController
         ]);
     }
 
-    public function add(Request $request)
+    public function add(AddContactRequest $request)
     {
-        if (
-            !$this->validator($request->all(), [
-                "id" => "required"
-            ])
-        ) {
-            return $this->errorResponse([
-                "errors" => $this->validation_errors
-            ], 422);
-        }
-
         $user = User::find($request->get("id"));
         if ($user) {
             $existing_contact = $this->auth_user->getContact($user);
@@ -74,18 +48,8 @@ class ContactController extends BaseController
         return $this->errorResponse([], 200);
     }
 
-    public function accept(Request $request)
+    public function accept(AcceptContactRequest $request)
     {
-        if (
-            !$this->validator($request->all(), [
-                "id" => "required"
-            ])
-        ) {
-            return $this->errorResponse([
-                "errors" => $this->validation_errors
-            ], 422);
-        }
-
         $user = User::find($request->get("id"));
         if ($user) {
             $existing_contact = $this->auth_user->getContact($user, 2);
@@ -99,18 +63,8 @@ class ContactController extends BaseController
         return $this->errorResponse([], 200);
     }
 
-    public function delete(Request $request)
+    public function delete(DeleteContactRequest $request)
     {
-        if (
-            !$this->validator($request->all(), [
-                "id" => "required"
-            ])
-        ) {
-            return $this->errorResponse([
-                "errors" => $this->validation_errors
-            ], 422);
-        }
-
         $user = User::find($request->get("id"));
         if ($user) {
             $existing_contact = $this->auth_user->getContact($user, 2);

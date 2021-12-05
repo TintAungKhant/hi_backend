@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Requests\Api\V1\LoginRequest;
+use App\Http\Requests\Api\V1\RegisterRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -13,23 +15,9 @@ class AuthController extends BaseController
 {
     use ApiResponseTrait;
 
-    public function register(Request $request)
+    public function register(RegisterRequest $request)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                "name" => "required",
-                "gender" => "required",
-                "birthday" => "required",
-                "email" => "required|email|unique:users",
-                "password" => "required|confirmed"
-            ]);
-
-            if ($validator->fails()) {
-                return $this->errorResponse([
-                    "errors" => $validator->errors()
-                ], 422);
-            }
-
             $user = User::create([
                 "name" => $request->get("name"),
                 "birthday" => $request->get("birthday"),
@@ -52,20 +40,9 @@ class AuthController extends BaseController
         }
     }
 
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                "email" => "required|email",
-                "password" => "required"
-            ]);
-
-            if ($validator->fails()) {
-                return $this->errorResponse([
-                    "errors" => $validator->errors()
-                ], 422);
-            }
-
             if (Auth::attempt($request->only("email", "password"))) {
                 return $this->successResponse([
                     "user" => Auth::user()

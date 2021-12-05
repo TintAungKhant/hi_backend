@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Requests\Api\V1\GetProfileRequest;
+use App\Http\Requests\Api\V1\UpdateProfileRequest;
 use App\Models\ProfileImage;
 use App\Models\User;
 use App\Services\FileUpload;
@@ -13,7 +15,7 @@ class ProfileController extends BaseController
 {
     use ApiResponseTrait;
 
-    public function get(Request $request)
+    public function get(GetProfileRequest $request)
     {
         $user = null;
 
@@ -32,24 +34,8 @@ class ProfileController extends BaseController
         ]);
     }
 
-    public function update(Request $request)
+    public function update(UpdateProfileRequest $request)
     {
-        $rules = [
-            "name" => "required",
-            "gender" => "required",
-            "birthday" => "required"
-        ];
-
-        if ($request->filled("password")) {
-            $rules["password"] = "confirmed";
-        }
-
-        if (!$this->validator($request->all(), $rules)) {
-            return $this->errorResponse([
-                "errors" => $this->validation_errors
-            ], 422);
-        }
-
         $update_data = [
             "name" => $request->get("name"),
             "gender" => $request->get("gender"),
@@ -71,6 +57,7 @@ class ProfileController extends BaseController
 
     public function updateProfileImage(Request $request)
     {
+        // TODO:: change request
         $rules = [
             "type" => "required|integer",
             "image" => "nullable|image",
