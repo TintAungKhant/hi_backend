@@ -99,7 +99,7 @@ class ContactController extends BaseController
         return $this->errorResponse([], 200);
     }
 
-    public function reject(Request $request)
+    public function delete(Request $request)
     {
         if (
             !$this->validator($request->all(), [
