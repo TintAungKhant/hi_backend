@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Models\ProfileImage;
 use App\Models\User;
+use App\Services\FileUpload;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -65,5 +67,70 @@ class ProfileController extends BaseController
         return $this->successResponse([
             "profile" => $this->auth_user
         ]);
+    }
+
+    public function updateProfileImage(Request $request)
+    {
+        $rules = [
+            "type" => "required|integer",
+            "image" => "nullable|image",
+            "old_image_id" => "nullable|integer"
+        ];
+
+        $type = $request->get("type");
+        if ($type == 1 || $type == 2) {
+
+            if ($type == 1) {
+                if ($this->auth_user->profile_images()->where("type", ProfileImage::PROFILE_IMAGE_TYPES["profile"])->count() == 1) {
+                    $rules["old_image_id"] = "required|integer";
+                }
+            } else {
+                if ($this->auth_user->profile_images()->where("type", ProfileImage::PROFILE_IMAGE_TYPES["featured"])->count() == 5) {
+                    $rules["old_image_id"] = "required|integer";
+                }
+            }
+
+            if (!$this->validator($request->all(), $rules)) {
+                return $this->errorResponse([
+                    "errors" => $this->validation_errors
+                ], 422);
+            }
+
+            if ($request->hasFile("image")) {
+                $fileUpload = new FileUpload;
+                $file_path = $fileUpload->save($request->file("image"), "image");
+
+                if ($request->filled("old_image_id")) {
+                    $image = $this->auth_user->profile_images()->where(function ($q) use ($type) {
+                        if ($type == 1) {
+                            $q->where("type", ProfileImage::PROFILE_IMAGE_TYPES["profile"]);
+                        } else {
+                            $q->where("type", ProfileImage::PROFILE_IMAGE_TYPES["featured"]);
+                        }
+                    })->where("id", $request->get("old_image_id"))->first();
+
+                    if (!$image) {
+                        return $this->errorResponse([], 200);
+                    }
+
+                    $image->update([
+                        "url" => env("APP_URL") . $file_path
+                    ]);
+
+                    $image->refresh();
+                } else {
+                    $image = $this->auth_user->profile_images()->create([
+                        "url" => env("APP_URL") . $file_path,
+                        "type" => $type == 1 ? ProfileImage::PROFILE_IMAGE_TYPES["profile"] : ProfileImage::PROFILE_IMAGE_TYPES["featured"]
+                    ]);
+                }
+
+                return $this->successResponse([
+                    "image" => $image
+                ]);
+            }
+        }
+
+        return $this->errorResponse([], 200);
     }
 }

@@ -31,5 +31,6 @@ Route::group(["prefix" => "v1", "middleware" => "update_last_seen"], function ()
 
         Route::get("profile", [\App\Http\Controllers\Api\V1\ProfileController::class, "get"]);
         Route::post("profile", [\App\Http\Controllers\Api\V1\ProfileController::class, "update"]);
+        Route::post("profile/image", [\App\Http\Controllers\Api\V1\ProfileController::class, "updateProfileImage"]);
     });
 });
