@@ -42,6 +42,24 @@ return [
             'visibility' => 'public',
         ],
 
+        'images' => [
+            'driver' => 'local',
+            'root' => public_path().env("UPLOAD_PATH_IMAGES", "/uploads/images"),
+            'visibility' => 'public',
+        ],
+
+        'videos' => [
+            'driver' => 'local',
+            'root' => public_path().env("UPLOAD_PATH_VIDEOS", "/uploads/videos"),
+            'visibility' => 'public',
+        ],
+
+        'files' => [
+            'driver' => 'local',
+            'root' => public_path().env("UPLOAD_PATH_FILES", "/uploads/files"),
+            'visibility' => 'public',
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),
