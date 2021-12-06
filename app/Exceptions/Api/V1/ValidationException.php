@@ -2,20 +2,25 @@
 
 namespace App\Exceptions\Api\V1;
 
+use App\Traits\ApiResponseTrait;
 use Exception;
-use Illuminate\Http\JsonResponse;
+use \Illuminate\Contracts\Validation\Validator;
 
 class ValidationException extends Exception
 {
-    protected $response;
+    use ApiResponseTrait;
 
-    public function __construct(JsonResponse $response)
+    protected $validator;
+
+    public function __construct(Validator $validator)
     {
-        $this->response = $response;
+        $this->validator = $validator;
     }
 
     public function render()
     {
-        return $this->response;
+        return $this->failResponse([
+            "errors" => $this->validator->errors()
+        ], 422);
     }
 }
