@@ -4,27 +4,32 @@ namespace App\Traits;
 
 trait ApiResponseTrait
 {
-    public function successResponse($data = [])
+    public function successResponse(array $data = [])
     {
-        return response()->json([
+        return $this->sendResponse([
             "status" => "success",
             "data" => $data
         ], 200);
     }
 
-    public function failResponse($data = [], $code)
+    public function failResponse(array $data = [], int $code)
     {
-        return response()->json([
+        return $this->sendResponse([
             "status" => "fail",
             "data" => $data
         ], $code);
     }
 
-    public function errorResponse($message="", $code)
+    public function errorResponse(array $data = [], int $code)
     {
-        return response()->json([
-            "status" => "error",
-            "message" => $message
-        ], $code);
+        return $this->sendResponse(
+            array_merge(["status" => "error",], $data),
+            $code
+        );
+    }
+
+    private function sendResponse(array $data, int $code)
+    {
+        return response()->json($data, $code);
     }
 }
