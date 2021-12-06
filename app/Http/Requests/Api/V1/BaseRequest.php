@@ -3,14 +3,11 @@
 namespace App\Http\Requests\Api\V1;
 
 use App\Exceptions\Api\V1\ValidationException;
-use App\Traits\ApiResponseTrait;
 use Illuminate\Foundation\Http\FormRequest;
 use \Illuminate\Contracts\Validation\Validator;
-use \Illuminate\Http\Exceptions\HttpResponseException;
 
 class BaseRequest extends FormRequest
 {
-    use ApiResponseTrait;
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -35,10 +32,6 @@ class BaseRequest extends FormRequest
 
     protected function failedValidation(Validator $validator)
     {
-        throw new ValidationException(
-            $this->errorResponse([
-                "errors" => $validator->errors()
-            ], 422)
-        );
+        throw new ValidationException($validator);
     }
 }
