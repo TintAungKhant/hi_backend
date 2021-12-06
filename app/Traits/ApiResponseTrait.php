@@ -2,19 +2,29 @@
 
 namespace App\Traits;
 
-trait ApiResponseTrait{
-    public function successResponse($data=[]){
-        return $this->sendResponse(true, $data);
-    }
-
-    public function errorResponse($data=[], $status){
-        return $this->sendResponse(false, $data, $status);
-    }
-
-    public function sendResponse($success, $data=[], $status=200){
+trait ApiResponseTrait
+{
+    public function successResponse($data = [])
+    {
         return response()->json([
-            "success" => $success,
+            "status" => "success",
             "data" => $data
-        ], $status);
+        ], 200);
+    }
+
+    public function failResponse($data = [], $code)
+    {
+        return response()->json([
+            "status" => "fail",
+            "data" => $data
+        ], $code);
+    }
+
+    public function errorResponse($message="", $code)
+    {
+        return response()->json([
+            "status" => "error",
+            "message" => $message
+        ], $code);
     }
 }
