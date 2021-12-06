@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Exceptions\Api\V1\InternalServerException;
 use App\Http\Requests\Api\V1\LoginRequest;
 use App\Http\Requests\Api\V1\RegisterRequest;
 use App\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Traits\ApiResponseTrait;
-use Illuminate\Support\Facades\Validator;
+use Exception;
 
 class AuthController extends BaseController
 {
@@ -32,11 +32,8 @@ class AuthController extends BaseController
             return $this->successResponse([
                 "user" => Auth::user()
             ]);
-        } catch (\Exception $e) {
-            return $this->errorResponse([
-                "exception" => get_class($e),
-                "message" => $e->getMessage()
-            ], 500);
+        } catch (Exception $e) {
+            throw new InternalServerException($e);
         }
     }
 
@@ -49,14 +46,11 @@ class AuthController extends BaseController
                 ]);
             }
 
-            return $this->successResponse([
-                "user" => null
-            ]);
-        } catch (\Exception $e) {
-            return $this->errorResponse([
-                "exception" => get_class($e),
-                "message" => $e->getMessage()
-            ], 500);
+            return $this->failResponse([
+                "message" => "Wrong login credentials."
+            ], 401);
+        } catch (Exception $e) {
+            throw new InternalServerException($e);
         }
     }
 }

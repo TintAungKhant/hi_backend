@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Exceptions\Api\V1\InternalServerException;
 use App\Http\Requests\Api\V1\AcceptContactRequest;
 use App\Http\Requests\Api\V1\AddContactRequest;
 use App\Http\Requests\Api\V1\DeleteContactRequest;
@@ -9,7 +10,7 @@ use App\Http\Requests\Api\V1\ExploreContactsRequest;
 use App\Http\Requests\Api\V1\GetContactsRequest;
 use App\Models\User;
 use App\Traits\ApiResponseTrait;
-use Illuminate\Http\Request;
+use Exception;
 
 class ContactController extends BaseController
 {
@@ -17,64 +18,102 @@ class ContactController extends BaseController
 
     public function explore(ExploreContactsRequest $request)
     {
-        $contacts = $this->auth_user->getNewContacts($request->get("gender"));
+        try {
+            $contacts = $this->auth_user->getNewContacts($request->get("gender"));
 
-        return $this->successResponse([
-            "contacts" => $contacts
-        ]);
+            return $this->successResponse([
+                "contacts" => $contacts
+            ]);
+        } catch (Exception $e) {
+            throw new InternalServerException($e);
+        }
     }
 
     public function contacts(GetContactsRequest $request)
     {
-        $contacts = $this->auth_user->getContacts($request->get("page", 1), $request->get("limit", 20), $request->get("type"));
+        try {
+            $contacts = $this->auth_user->getContacts($request->get("page", 1), $request->get("limit", 20), $request->get("type"));
 
-        return $this->successResponse([
-            "contacts" => $contacts
-        ]);
+            return $this->successResponse([
+                "contacts" => $contacts
+            ]);
+        } catch (Exception $e) {
+            throw new InternalServerException($e);
+        }
     }
 
     public function add(AddContactRequest $request)
     {
-        $user = User::find($request->get("id"));
-        if ($user) {
-            $existing_contact = $this->auth_user->getContact($user);
-            if (!$existing_contact) {
-                $this->auth_user->addContact($user);
+        try {
+            $user = User::find($request->get("id"));
+            if ($user) {
+                $existing_contact = $this->auth_user->getContact($user);
+                if (!$existing_contact) {
+                    $this->auth_user->addContact($user);
 
-                return $this->successResponse([]);
+                    return $this->successResponse([]);
+                }
+
+                return $this->failResponse([
+                    "message" => "Contact already existed."
+                ], 400);
             }
-        }
 
-        return $this->errorResponse([], 200);
+            return $this->failResponse([
+                "message" => "User not found."
+            ], 404);
+        } catch (Exception $e) {
+            throw new InternalServerException($e);
+        }
     }
 
     public function accept(AcceptContactRequest $request)
     {
-        $user = User::find($request->get("id"));
-        if ($user) {
-            $existing_contact = $this->auth_user->getContact($user, 2);
-            if ($existing_contact) {
-                $this->auth_user->acceptContact($user);
+        try {
+            $user = User::find($request->get("id"));
+            if ($user) {
+                $existing_contact = $this->auth_user->getContact($user, 2);
+                if ($existing_contact) {
+                    $this->auth_user->acceptContact($user);
 
-                return $this->successResponse([]);
+                    return $this->successResponse([]);
+                }
+
+                return $this->failResponse([
+                    "message" => "Contact not found."
+                ], 404);
             }
-        }
 
-        return $this->errorResponse([], 200);
+            return $this->failResponse([
+                "message" => "User not found."
+            ], 404);
+        } catch (Exception $e) {
+            throw new InternalServerException($e);
+        }
     }
 
     public function delete(DeleteContactRequest $request)
     {
-        $user = User::find($request->get("id"));
-        if ($user) {
-            $existing_contact = $this->auth_user->getContact($user, 2);
-            if ($existing_contact) {
-                $this->auth_user->deleteContact($user);
+        try {
+            $user = User::find($request->get("id"));
+            if ($user) {
+                $existing_contact = $this->auth_user->getContact($user, 2);
+                if ($existing_contact) {
+                    $this->auth_user->deleteContact($user);
 
-                return $this->successResponse([]);
+                    return $this->successResponse([]);
+                }
+
+                return $this->failResponse([
+                    "message" => "Contact not found."
+                ], 404);
             }
-        }
 
-        return $this->errorResponse([], 200);
+            return $this->failResponse([
+                "message" => "User not found."
+            ], 404);
+        } catch (Exception $e) {
+            throw new InternalServerException($e);
+        }
     }
 }

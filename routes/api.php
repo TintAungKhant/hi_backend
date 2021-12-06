@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+// TODO:: change proper http verbs
+
 Route::group(["prefix" => "v1", "middleware" => "update_last_seen"], function () {
     Route::post("register", [\App\Http\Controllers\Api\V1\AuthController::class, "register"]);
     Route::post("login", [\App\Http\Controllers\Api\V1\AuthController::class, "login"]);
