@@ -5,7 +5,7 @@ namespace App\Exceptions\Api\V1;
 use App\Traits\ApiResponseTrait;
 use Exception;
 
-class InternalServerException extends Exception
+class InternalErrorException extends Exception
 {
     use ApiResponseTrait;
 
