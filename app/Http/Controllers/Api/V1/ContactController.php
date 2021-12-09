@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Exceptions\Api\V1\InternalServerException;
+use App\Exceptions\Api\V1\InternalErrorException;
 use App\Http\Requests\Api\V1\AcceptContactRequest;
 use App\Http\Requests\Api\V1\AddContactRequest;
 use App\Http\Requests\Api\V1\DeleteContactRequest;
@@ -25,7 +25,7 @@ class ContactController extends BaseController
                 "contacts" => $contacts
             ]);
         } catch (Exception $e) {
-            throw new InternalServerException($e);
+            throw new InternalErrorException($e);
         }
     }
 
@@ -38,7 +38,7 @@ class ContactController extends BaseController
                 "contacts" => $contacts
             ]);
         } catch (Exception $e) {
-            throw new InternalServerException($e);
+            throw new InternalErrorException($e);
         }
     }
 
@@ -63,7 +63,7 @@ class ContactController extends BaseController
                 "message" => "User not found."
             ], 404);
         } catch (Exception $e) {
-            throw new InternalServerException($e);
+            throw new InternalErrorException($e);
         }
     }
 
@@ -88,7 +88,7 @@ class ContactController extends BaseController
                 "message" => "User not found."
             ], 404);
         } catch (Exception $e) {
-            throw new InternalServerException($e);
+            throw new InternalErrorException($e);
         }
     }
 
@@ -113,7 +113,7 @@ class ContactController extends BaseController
                 "message" => "User not found."
             ], 404);
         } catch (Exception $e) {
-            throw new InternalServerException($e);
+            throw new InternalErrorException($e);
         }
     }
 }

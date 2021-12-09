@@ -22,6 +22,7 @@ class GetContactsRequest extends BaseRequest
     public function rules()
     {
         return [
+            "type" => "nullable|integer|min:1",
             "page" => "nullable|integer|min:1",
             "limit" => "nullable|integer|min:1"
         ];

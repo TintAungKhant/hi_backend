@@ -22,7 +22,7 @@ class AddContactRequest extends BaseRequest
     public function rules()
     {
         return [
-            "id" => "required"
+            "id" => "required|integer"
         ];
     }
 }

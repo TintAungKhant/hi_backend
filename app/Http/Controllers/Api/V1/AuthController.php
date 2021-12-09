@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Exceptions\Api\V1\InternalServerException;
+use App\Exceptions\Api\V1\InternalErrorException;
 use App\Http\Requests\Api\V1\LoginRequest;
 use App\Http\Requests\Api\V1\RegisterRequest;
 use App\Models\User;
@@ -33,7 +33,7 @@ class AuthController extends BaseController
                 "user" => Auth::user()
             ]);
         } catch (Exception $e) {
-            throw new InternalServerException($e);
+            throw new InternalErrorException($e);
         }
     }
 
@@ -50,7 +50,7 @@ class AuthController extends BaseController
                 "message" => "Wrong login credentials."
             ], 401);
         } catch (Exception $e) {
-            throw new InternalServerException($e);
+            throw new InternalErrorException($e);
         }
     }
 }

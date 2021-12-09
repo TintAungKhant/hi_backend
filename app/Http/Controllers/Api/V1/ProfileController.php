@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Exceptions\Api\V1\InternalServerException;
+use App\Exceptions\Api\V1\InternalErrorException;
 use App\Http\Requests\Api\V1\GetProfileRequest;
 use App\Http\Requests\Api\V1\UpdateProfileImageRequest;
 use App\Http\Requests\Api\V1\UpdateProfileRequest;
@@ -17,13 +17,13 @@ class ProfileController extends BaseController
 {
     use ApiResponseTrait;
 
-    public function get(GetProfileRequest $request)
+    public function get($user_id = null)
     {
         try {
             $user = null;
 
-            if ($request->filled("id")) {
-                $user = User::find($request->get("id"));
+            if ($user_id) {
+                $user = User::find($user_id);
             } else {
                 $user = $this->auth_user;
             }
@@ -38,7 +38,7 @@ class ProfileController extends BaseController
                 "profile" => $user->load("profile_images")
             ]);
         } catch (Exception $e) {
-            throw new InternalServerException($e);
+            throw new InternalErrorException($e);
         }
     }
 
@@ -63,7 +63,7 @@ class ProfileController extends BaseController
                 "profile" => $this->auth_user
             ]);
         } catch (Exception $e) {
-            throw new InternalServerException($e);
+            throw new InternalErrorException($e);
         }
     }
 
@@ -113,7 +113,7 @@ class ProfileController extends BaseController
                 "message" => "Invalid parameters."
             ], 400);
         } catch (Exception $e) {
-            throw new InternalServerException($e);
+            throw new InternalErrorException($e);
         }
     }
 }
