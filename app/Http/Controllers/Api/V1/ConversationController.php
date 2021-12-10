@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Exceptions\Api\V1\InternalErrorException;
+use App\Http\Requests\Api\V1\GetConversationRequest;
 use App\Http\Requests\Api\V1\GetConversationsRequest;
 use App\Models\Conversation;
+use App\Models\Message;
 use App\Models\TextMessage;
 use App\Traits\ApiResponseTrait;
 use Exception;
@@ -32,6 +34,19 @@ class ConversationController extends BaseController
 
             return $this->successResponse([
                 "conversations" => $conversations
+            ]);
+        } catch (Exception $e) {
+            throw new InternalErrorException($e);
+        }
+    }
+
+    public function show(GetConversationRequest $request, $conversation_id)
+    {
+        try {
+            $conversation = $this->auth_user->getConversation($conversation_id);
+
+            return $this->successResponse([
+                "conversations" => $conversation
             ]);
         } catch (Exception $e) {
             throw new InternalErrorException($e);

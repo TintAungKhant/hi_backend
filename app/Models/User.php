@@ -175,4 +175,9 @@ class User extends Authenticatable
             $q->with("latest_message")->whereHas("messages")->limit($limit)->orderBy("conversations.updated_at", "DESC");
         }])->conversations->makeHidden("pivot");
     }
+
+    public function getConversation(int $id)
+    {
+        return $this->conversations()->where("id", $id)->first();
+    }
 }
