@@ -164,4 +164,15 @@ class User extends Authenticatable
         $this->contacts()->detach($user->id);
         $user->contacts()->detach($this->id);
     }
+
+    public function getConversations(?Conversation $last_conversation = null, int $limit = 20)
+    {
+        return $this->load(["conversations" => function ($q) use ($last_conversation, $limit) {
+            if ($last_conversation) {
+                $q->where("conversations.id", "<>", $last_conversation->id);
+                $q->where("conversations.updated_at", "<=", $last_conversation->created_at);
+            }
+            $q->with("latest_message")->whereHas("messages")->limit($limit)->orderBy("conversations.updated_at", "DESC");
+        }])->conversations->makeHidden("pivot");
+    }
 }
