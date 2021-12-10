@@ -35,5 +35,10 @@ Route::group(["prefix" => "v1", "middleware" => "update_last_seen"], function ()
         Route::post("profile", [\App\Http\Controllers\Api\V1\ProfileController::class, "update"]);
         Route::get("profile/{user_id}/conversation", [\App\Http\Controllers\Api\V1\ProfileController::class, "getConversation"]);
         Route::post("profile/image", [\App\Http\Controllers\Api\V1\ProfileController::class, "updateProfileImage"]);
+
+        Route::get("conversations", [\App\Http\Controllers\Api\V1\ConversationController::class, "get"]);
+        Route::get("conversations/{conversation_id}", [\App\Http\Controllers\Api\V1\ConversationController::class, "show"]);
+        Route::get("conversations/{conversation_id}/messages", [\App\Http\Controllers\Api\V1\MessageController::class, "get"]);
+        Route::post("conversations/{conversation_id}/messages", [\App\Http\Controllers\Api\V1\MessageController::class, "store"]);
     });
 });
