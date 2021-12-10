@@ -57,8 +57,19 @@ class User extends Authenticatable
         return $this->belongsToMany(User::class, "contact_user", "user_id", "contact_user_id")->withPivot("type");
     }
 
-    public function profile_images(){
+    public function profile_images()
+    {
         return $this->hasMany(ProfileImage::class);
+    }
+
+    public function conversations()
+    {
+        return $this->belongsToMany(Conversation::class);
+    }
+
+    public function messages()
+    {
+        return $this->hasMany(Message::class);
     }
 
     public function getNewContacts(?int $gender = null, int $limit = 20)

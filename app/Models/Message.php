@@ -10,4 +10,18 @@ class Message extends Model
     use HasFactory;
 
     protected $fillable = [];
+
+    public function conversation()
+    {
+        return $this->belongsTo(Conversation::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function messageable(){
+        return $this->morphTo();
+    }
 }

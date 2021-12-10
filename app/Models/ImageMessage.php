@@ -12,4 +12,8 @@ class ImageMessage extends Model
     protected $fillable = [
         "url"
     ];
+
+    public function message(){
+        return $this->morphOne(Message::class, "messageable");
+    }
 }
