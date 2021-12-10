@@ -165,6 +165,30 @@ class User extends Authenticatable
         $user->contacts()->detach($this->id);
     }
 
+    public function firstOrCreateConversation(User $user)
+    {
+        $contact = $this->contacts()->wherePivot("type", self::CONTACT_USER_TYPES["friend"])->where("users.id", $user->id)->first();
+        if ($contact) {
+            $conversations = $this->contacts()->wherePivot("type", self::CONTACT_USER_TYPES["friend"])->where("users.id", $user->id)->first()
+                ->load(["conversations" => function ($q) {
+                    $q->whereHas("users", function ($q2) {
+                        $q2->where("users.id", $this->id);
+                    })->has("users", "=", 2);
+                }])->conversations->makeHidden("pivot");
+
+            if (sizeof($conversations) == 0) {
+                $conversation = Conversation::create([]);
+                $conversation->users()->sync([$this->id, $user->id]);
+            } else {
+                $conversation = $conversations->first();
+            }
+
+            return $conversation;
+        }
+
+        return null;
+    }
+
     public function getConversations(?Conversation $last_conversation = null, int $limit = 20)
     {
         return $this->load(["conversations" => function ($q) use ($last_conversation, $limit) {
