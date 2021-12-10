@@ -22,7 +22,7 @@ class GetProfileRequest extends BaseRequest
     public function rules()
     {
         return [
-            "id" => "nullable|integer"
+            "id" => "sometimes|integer"
         ];
     }
 }

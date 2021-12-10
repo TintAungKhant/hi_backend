@@ -31,8 +31,9 @@ Route::group(["prefix" => "v1", "middleware" => "update_last_seen"], function ()
         Route::post("friends/accept", [\App\Http\Controllers\Api\V1\ContactController::class, "accept"]);
         Route::post("friends/delete", [\App\Http\Controllers\Api\V1\ContactController::class, "delete"]);
 
-        Route::get("profile", [\App\Http\Controllers\Api\V1\ProfileController::class, "get"]);
+        Route::get("profile/{user_id?}", [\App\Http\Controllers\Api\V1\ProfileController::class, "get"]);
         Route::post("profile", [\App\Http\Controllers\Api\V1\ProfileController::class, "update"]);
+        Route::get("profile/{user_id}/conversation", [\App\Http\Controllers\Api\V1\ProfileController::class, "getConversation"]);
         Route::post("profile/image", [\App\Http\Controllers\Api\V1\ProfileController::class, "updateProfileImage"]);
     });
 });

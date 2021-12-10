@@ -26,8 +26,8 @@ class UpdateProfileImageRequest extends BaseRequest
     {
         $rules = [
             "type" => "required|integer",
-            "image" => "nullable|image",
-            "old_image_id" => "nullable|integer"
+            "image" => "sometimes|image",
+            "old_image_id" => "sometimes|integer"
         ];
 
         $type = request()->get("type");

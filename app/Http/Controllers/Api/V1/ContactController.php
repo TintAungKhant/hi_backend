@@ -32,7 +32,7 @@ class ContactController extends BaseController
     public function contacts(GetContactsRequest $request)
     {
         try {
-            $contacts = $this->auth_user->getContacts($request->get("page", 1), $request->get("limit", 20), $request->get("type"));
+            $contacts = $this->auth_user->getContacts($request->get("type"), $request->get("page", 1));
 
             return $this->successResponse([
                 "contacts" => $contacts

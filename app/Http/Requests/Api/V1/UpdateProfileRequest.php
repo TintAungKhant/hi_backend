@@ -25,7 +25,7 @@ class UpdateProfileRequest extends BaseRequest
             "name" => "required",
             "gender" => "required",
             "birthday" => "required",
-            "password" => "nullable|confirmed"
+            "password" => "sometimes|confirmed"
         ];
     }
 }

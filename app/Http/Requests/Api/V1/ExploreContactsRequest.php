@@ -22,7 +22,7 @@ class ExploreContactsRequest extends BaseRequest
     public function rules()
     {
         return [
-            "gender" => "nullable|integer"
+            "gender" => "sometimes|integer"
         ];
     }
 }

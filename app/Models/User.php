@@ -70,23 +70,23 @@ class User extends Authenticatable
         })->inRandomOrder()->take($limit)->get();
     }
 
-    public function getContacts(int $page = 1, int $limit = 20, ?int $type = null)
+    public function getContacts(?int $type = null, int $page = 1, int $limit = 20)
     {
         $offset = ($page - 1) * $limit;
 
         $contacts =  $this->load([
             "contacts" => function ($q) use ($offset, $limit, $type) {
-                if ($type == 1 || $type == 2) {
+                if ($type == "online" || $type == "offline") {
                     $q->wherePivot("type", self::CONTACT_USER_TYPES["friend"])->where(function ($q2) use ($type) {
-                        if ($type == 1) {
+                        if ($type == "online") {
                             $q2->where("last_seen", ">=", \Carbon\Carbon::now()->subMinutes(2));
-                        } else if ($type == 2) {
+                        } else if ($type == "offline") {
                             $q2->where("last_seen", "<=", \Carbon\Carbon::now()->subMinutes(2))->orWhere("last_seen", null);
                         }
                     });
-                } else if ($type == 3) {
+                } else if ($type == "request") {
                     $q->wherePivot("type", self::CONTACT_USER_TYPES["deciding"]);
-                } else if ($type == 4) {
+                } else if ($type == "added") {
                     $q->wherePivot("type", self::CONTACT_USER_TYPES["waiting"]);
                 }
                 $q->offset($offset)->limit($limit)->get();
@@ -108,7 +108,7 @@ class User extends Authenticatable
         ])->contacts;
 
         $contacts->each->makeHidden('pivot');
-        
+
         return $contacts->first();
     }
 

@@ -22,7 +22,7 @@ class DeleteContactRequest extends BaseRequest
     public function rules()
     {
         return [
-            "id" => "required"
+            "id" => "required|integer"
         ];
     }
 }

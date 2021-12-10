@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\Api\V1;
 
+use App\Rules\Must;
+
 class GetContactsRequest extends BaseRequest
 {
     /**
@@ -22,9 +24,8 @@ class GetContactsRequest extends BaseRequest
     public function rules()
     {
         return [
-            "type" => "nullable|integer|min:1",
-            "page" => "nullable|integer|min:1",
-            "limit" => "nullable|integer|min:1"
+            "type" => ["sometimes", new Must("online", "offline", "request", "added")],
+            "page" => "sometimes|integer|min:1"
         ];
     }
 }
