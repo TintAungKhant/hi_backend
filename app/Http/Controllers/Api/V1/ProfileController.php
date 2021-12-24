@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Exceptions\Api\V1\InternalErrorException;
-use App\Http\Requests\Api\V1\GetProfileRequest;
 use App\Http\Requests\Api\V1\UpdateProfileImageRequest;
 use App\Http\Requests\Api\V1\UpdateProfileRequest;
 use App\Models\ProfileImage;
@@ -36,29 +35,6 @@ class ProfileController extends BaseController
 
             return $this->successResponse([
                 "profile" => $user->load("profile_images")
-            ]);
-        } catch (Exception $e) {
-            throw new InternalErrorException($e);
-        }
-    }
-
-    public function getConversation($user_id)
-    {
-        try {
-            $user = User::find($user_id);
-
-            if (!$user) {
-                return $this->failResponse([
-                    "message" => "User not found."
-                ], 404);
-            } else if ($user->id == $this->auth_user->id) {
-                return $this->failResponse([
-                    "message" => "Cant chat yourself."
-                ], 400);
-            }
-
-            return $this->successResponse([
-                "conversation" => $this->auth_user->firstOrCreateConversation($user)
             ]);
         } catch (Exception $e) {
             throw new InternalErrorException($e);

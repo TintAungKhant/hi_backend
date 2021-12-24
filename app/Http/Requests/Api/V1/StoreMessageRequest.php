@@ -24,7 +24,9 @@ class StoreMessageRequest extends BaseRequest
     public function rules()
     {
         return [
-            "type" => ["required", new Must("text", "image")]
+            "type" => ["required", new Must("text", "image")],
+            "user_id" => "required_without:conversation_id|integer",
+            "conversation_id" => "required_without:user_id|integer",
         ];
     }
 }

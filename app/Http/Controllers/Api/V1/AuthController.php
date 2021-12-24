@@ -53,4 +53,17 @@ class AuthController extends BaseController
             throw new InternalErrorException($e);
         }
     }
+
+    public function logout()
+    {
+        try {
+            Auth::logout();
+
+            return $this->successResponse([
+                "user" => []
+            ]);
+        } catch (Exception $e) {
+            throw new InternalErrorException($e);
+        }
+    }
 }

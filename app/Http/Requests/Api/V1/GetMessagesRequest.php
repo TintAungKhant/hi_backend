@@ -22,7 +22,9 @@ class GetMessagesRequest extends BaseRequest
     public function rules()
     {
         return [
-            "last_message_id" => "sometimes|integer"
+            "last_message_id" => "sometimes|integer",
+            "user_id" => "required_without:conversation_id|integer",
+            "conversation_id" => "required_without:user_id|integer",
         ];
     }
 }

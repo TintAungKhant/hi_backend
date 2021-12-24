@@ -6,8 +6,8 @@ use App\Exceptions\Api\V1\InternalErrorException;
 use App\Http\Requests\Api\V1\GetConversationRequest;
 use App\Http\Requests\Api\V1\GetConversationsRequest;
 use App\Models\Conversation;
-use App\Models\Message;
 use App\Models\TextMessage;
+use App\Models\User;
 use App\Traits\ApiResponseTrait;
 use Exception;
 
@@ -40,13 +40,31 @@ class ConversationController extends BaseController
         }
     }
 
-    public function show(GetConversationRequest $request, $conversation_id)
+    public function show(GetConversationRequest $request)
     {
         try {
+            $conversation_id = $request->get("conversation_id");
+
+            if($request->filled("user_id")){
+                $user = User::find($request->get("user_id"));
+
+                if (!$user) {
+                    return $this->failResponse([
+                        "message" => "User not found."
+                    ], 404);
+                } else if ($user->id == $this->auth_user->id) {
+                    return $this->failResponse([
+                        "message" => "Cant chat yourself."
+                    ], 400);
+                }
+
+                $conversation_id = $this->auth_user->firstOrCreateConversation($user)->id;
+            }
+
             $conversation = $this->auth_user->getConversation($conversation_id);
 
             return $this->successResponse([
-                "conversations" => $conversation
+                "conversation" => $conversation
             ]);
         } catch (Exception $e) {
             throw new InternalErrorException($e);

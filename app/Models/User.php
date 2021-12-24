@@ -46,11 +46,18 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    protected $appends = ["online"];
+
     const CONTACT_USER_TYPES = [
         "waiting" => 1,
         "deciding" => 2,
         "friend" => 3
     ];
+
+    public function getOnlineAttribute()
+    {
+        return $this->last_seen >= \Carbon\Carbon::now()->subMinutes(2);
+    }
 
     public function contacts()
     {
@@ -81,7 +88,7 @@ class User extends Authenticatable
         })->inRandomOrder()->take($limit)->get();
     }
 
-    public function getContacts(?int $type = null, int $page = 1, int $limit = 20)
+    public function getContacts(?string $type = null, int $page = 1, int $limit = 20)
     {
         $offset = ($page - 1) * $limit;
 
@@ -196,12 +203,12 @@ class User extends Authenticatable
                 $q->where("conversations.id", "<>", $last_conversation->id);
                 $q->where("conversations.updated_at", "<=", $last_conversation->created_at);
             }
-            $q->with("latest_message")->whereHas("messages")->limit($limit)->orderBy("conversations.updated_at", "DESC");
+            $q->with("users")->with("latest_message")->whereHas("messages")->limit($limit)->orderBy("conversations.updated_at", "DESC");
         }])->conversations->makeHidden("pivot");
     }
 
     public function getConversation(int $id)
     {
-        return $this->conversations()->where("id", $id)->first();
+        return $this->conversations()->with("users")->where("id", $id)->first();
     }
 }

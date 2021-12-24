@@ -3,9 +3,6 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Exceptions\Api\V1\InternalErrorException;
-use App\Http\Requests\Api\V1\AcceptContactRequest;
-use App\Http\Requests\Api\V1\AddContactRequest;
-use App\Http\Requests\Api\V1\DeleteContactRequest;
 use App\Http\Requests\Api\V1\ExploreContactsRequest;
 use App\Http\Requests\Api\V1\GetContactsRequest;
 use App\Models\User;
@@ -42,10 +39,10 @@ class ContactController extends BaseController
         }
     }
 
-    public function add(AddContactRequest $request)
+    public function add($user_id)
     {
         try {
-            $user = User::find($request->get("id"));
+            $user = User::find($user_id);
             if ($user) {
                 $existing_contact = $this->auth_user->getContact($user);
                 if (!$existing_contact) {
@@ -67,10 +64,10 @@ class ContactController extends BaseController
         }
     }
 
-    public function accept(AcceptContactRequest $request)
+    public function accept($user_id)
     {
         try {
-            $user = User::find($request->get("id"));
+            $user = User::find($user_id);
             if ($user) {
                 $existing_contact = $this->auth_user->getContact($user, 2);
                 if ($existing_contact) {
@@ -92,12 +89,12 @@ class ContactController extends BaseController
         }
     }
 
-    public function delete(DeleteContactRequest $request)
+    public function delete($user_id)
     {
         try {
-            $user = User::find($request->get("id"));
+            $user = User::find($user_id);
             if ($user) {
-                $existing_contact = $this->auth_user->getContact($user, 2);
+                $existing_contact = $this->auth_user->getContact($user);
                 if ($existing_contact) {
                     $this->auth_user->deleteContact($user);
 

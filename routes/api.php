@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Route;
 Route::group(["prefix" => "v1", "middleware" => "update_last_seen"], function () {
     Route::post("register", [\App\Http\Controllers\Api\V1\AuthController::class, "register"]);
     Route::post("login", [\App\Http\Controllers\Api\V1\AuthController::class, "login"]);
+    Route::any("logout", [\App\Http\Controllers\Api\V1\AuthController::class, "logout"]);
 
     Route::group(["middleware" => "auth:sanctum"], function () {
         Route::get('/user', function (Request $request) {
@@ -27,18 +28,17 @@ Route::group(["prefix" => "v1", "middleware" => "update_last_seen"], function ()
 
         Route::get("friends/explore", [\App\Http\Controllers\Api\V1\ContactController::class, "explore"]);
         Route::get("friends", [\App\Http\Controllers\Api\V1\ContactController::class, "contacts"]);
-        Route::post("friends/add", [\App\Http\Controllers\Api\V1\ContactController::class, "add"]);
-        Route::post("friends/accept", [\App\Http\Controllers\Api\V1\ContactController::class, "accept"]);
-        Route::post("friends/delete", [\App\Http\Controllers\Api\V1\ContactController::class, "delete"]);
+        Route::post("friends/{user_id}/add", [\App\Http\Controllers\Api\V1\ContactController::class, "add"]);
+        Route::post("friends/{user_id}/accept", [\App\Http\Controllers\Api\V1\ContactController::class, "accept"]);
+        Route::post("friends/{user_id}/delete", [\App\Http\Controllers\Api\V1\ContactController::class, "delete"]);
 
         Route::get("profile/{user_id?}", [\App\Http\Controllers\Api\V1\ProfileController::class, "get"]);
         Route::post("profile", [\App\Http\Controllers\Api\V1\ProfileController::class, "update"]);
-        Route::get("profile/{user_id}/conversation", [\App\Http\Controllers\Api\V1\ProfileController::class, "getConversation"]);
         Route::post("profile/image", [\App\Http\Controllers\Api\V1\ProfileController::class, "updateProfileImage"]);
 
         Route::get("conversations", [\App\Http\Controllers\Api\V1\ConversationController::class, "get"]);
-        Route::get("conversations/{conversation_id}", [\App\Http\Controllers\Api\V1\ConversationController::class, "show"]);
-        Route::get("conversations/{conversation_id}/messages", [\App\Http\Controllers\Api\V1\MessageController::class, "get"]);
-        Route::post("conversations/{conversation_id}/messages", [\App\Http\Controllers\Api\V1\MessageController::class, "store"]);
+        Route::get("conversations/show", [\App\Http\Controllers\Api\V1\ConversationController::class, "show"]);
+        Route::get("conversations/messages", [\App\Http\Controllers\Api\V1\MessageController::class, "get"]);
+        Route::post("conversations/messages", [\App\Http\Controllers\Api\V1\MessageController::class, "store"]);
     });
 });

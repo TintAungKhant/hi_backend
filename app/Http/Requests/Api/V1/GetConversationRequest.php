@@ -22,7 +22,8 @@ class GetConversationRequest extends BaseRequest
     public function rules()
     {
         return [
-            //
+            "user_id" => "required_without:conversation_id|integer",
+            "conversation_id" => "required_without:user_id|integer",
         ];
     }
 }
