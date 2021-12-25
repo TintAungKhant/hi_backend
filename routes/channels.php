@@ -13,6 +13,13 @@ use Illuminate\Support\Facades\Broadcast;
 |
 */
 
+Broadcast::channel("api.v1.message-sent.{conversation_id}", function () {
+    return true;
+});
+Broadcast::channel("api.v1.conversation-updated.{user_id}", function () {
+    return true;
+});
+
 Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
     return (int) $user->id === (int) $id;
 });

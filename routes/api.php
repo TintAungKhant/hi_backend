@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Route;
 // TODO:: change proper http verbs
 
 Route::group(["prefix" => "v1", "middleware" => "update_last_seen"], function () {
+    Broadcast::routes(['middleware' => ['auth:sanctum']]);
     Route::post("register", [\App\Http\Controllers\Api\V1\AuthController::class, "register"]);
     Route::post("login", [\App\Http\Controllers\Api\V1\AuthController::class, "login"]);
     Route::any("logout", [\App\Http\Controllers\Api\V1\AuthController::class, "logout"]);

@@ -22,6 +22,7 @@ class ConversationController extends BaseController
             if ($request->filled("last_conversation_id")) {
                 $last_conversation = Conversation::find($request->get("last_conversation_id"));
             }
+            
             $conversations = $this->auth_user->getConversations($last_conversation);
 
             $conversations->each(function($conversation){

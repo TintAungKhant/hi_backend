@@ -9,7 +9,7 @@ class Conversation extends Model
 {
     use HasFactory;
 
-    protected $fillable = [];
+    protected $fillable = ["updated_at"];
 
     public function users()
     {

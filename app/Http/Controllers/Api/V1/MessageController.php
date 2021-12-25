@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Events\Api\V1\ConversationUpdated;
+use App\Events\Api\V1\MessageSent;
 use App\Exceptions\Api\V1\InternalErrorException;
 use App\Http\Requests\Api\V1\GetMessagesRequest;
 use App\Http\Requests\Api\V1\StoreMessageRequest;
@@ -108,8 +110,8 @@ class MessageController extends BaseController
 
             $message->messageable()->associate($messageable);
 
-            $message->user()->associate($this->auth_user);
-            $message->conversation()->associate($conversation);
+            $message->user()->associate($this->auth_user)->makeHidden("user");
+            $message->conversation()->associate($conversation)->makeHidden("conversation");
 
             $message->save();
 
@@ -119,6 +121,14 @@ class MessageController extends BaseController
             $conversation->load([
                 "latest_message"
             ]);
+
+            $conversation->makeHidden("pivot");
+
+            $conversation->users()->each(function ($user) use ($conversation) {
+                broadcast(new ConversationUpdated($conversation, $user));
+            });
+            
+            broadcast(new MessageSent($message));
 
             return $this->successResponse([
                 "message" => $message
