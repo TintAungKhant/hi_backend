@@ -55,6 +55,15 @@ class MessageController extends BaseController
 
             $conversation->getMessages($last_message);
 
+            $conversation->messages->each(function ($message) {
+                if ($message->messageable_type == TextMessage::class) {
+                    $message->type = "text";
+                } else {
+                    $message->type = "image";
+                }
+                $message->makeHidden("messageable_id","messageable_type");
+            });
+
             return $this->successResponse([
                 "conversation" => $conversation
             ]);
@@ -102,9 +111,9 @@ class MessageController extends BaseController
                     "text" => $request->get("text")
                 ]);
             } else if ($request->get("type") == "image") {
-                $image_path = (new FileUpload())->save($request->file("file"), "image");
+                $image_url = (new FileUpload())->save($request->file("image"), "image");
                 $messageable = ImageMessage::create([
-                    "image_path" => $image_path
+                    "url" => $image_url
                 ]);
             }
 
@@ -115,19 +124,24 @@ class MessageController extends BaseController
 
             $message->save();
 
+            if ($message->messageable_type == TextMessage::class) {
+                $message->type = "text";
+            } else {
+                $message->type = "image";
+            }
+            $message->makeHidden("messageable_id","messageable_type");
+
             $conversation->updated_at = $message->created_at;
             $conversation->update();
 
-            $conversation->load([
-                "latest_message"
-            ]);
-
+            $conversation->latest_message = $message;
+            
             $conversation->makeHidden("pivot");
 
             $conversation->users()->each(function ($user) use ($conversation) {
                 broadcast(new ConversationUpdated($conversation, $user));
             });
-            
+
             broadcast(new MessageSent($message));
 
             return $this->successResponse([

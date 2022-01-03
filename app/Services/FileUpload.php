@@ -44,6 +44,6 @@ class FileUpload
             $full_path = env("UPLOAD_PATH_FILES", "/uploads/files") . "/" . $file_path;
         }
 
-        return $full_path;
+        return env("APP_URL").$full_path;
     }
 }

@@ -27,6 +27,8 @@ class StoreMessageRequest extends BaseRequest
             "type" => ["required", new Must("text", "image")],
             "user_id" => "required_without:conversation_id|integer",
             "conversation_id" => "required_without:user_id|integer",
+            "text" => "required_without:image",
+            "image" => "required_without:text|image|max:1024",
         ];
     }
 }

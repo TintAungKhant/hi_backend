@@ -22,15 +22,16 @@ class ConversationController extends BaseController
             if ($request->filled("last_conversation_id")) {
                 $last_conversation = Conversation::find($request->get("last_conversation_id"));
             }
-            
+
             $conversations = $this->auth_user->getConversations($last_conversation);
 
-            $conversations->each(function($conversation){
-                if($conversation->latest_message->messageable_type == TextMessage::class){
+            $conversations->each(function ($conversation) {
+                if ($conversation->latest_message->messageable_type == TextMessage::class) {
                     $conversation->latest_message->type = "text";
-                }else{
+                } else {
                     $conversation->latest_message->type = "image";
                 }
+                $conversation->latest_message->makeHidden("messageable_id","messageable_type");
             });
 
             return $this->successResponse([
@@ -46,7 +47,7 @@ class ConversationController extends BaseController
         try {
             $conversation_id = $request->get("conversation_id");
 
-            if($request->filled("user_id")){
+            if ($request->filled("user_id")) {
                 $user = User::find($request->get("user_id"));
 
                 if (!$user) {
