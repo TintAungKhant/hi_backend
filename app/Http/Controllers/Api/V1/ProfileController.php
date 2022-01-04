@@ -23,6 +23,30 @@ class ProfileController extends BaseController
 
             if ($user_id) {
                 $user = User::find($user_id);
+
+                $contact = $this->auth_user->getContact($user);
+
+                $contact_type = null;
+
+                if ($contact) {
+                    if ($contact->pivot->type == User::CONTACT_USER_TYPES["deciding"]) {
+                    }
+                    switch ($contact->pivot->type) {
+                        case User::CONTACT_USER_TYPES["deciding"]:
+                            $contact_type = "deciding";
+                            break;
+
+                        case User::CONTACT_USER_TYPES["friend"]:
+                            $contact_type = "friend";
+                            break;
+
+                        default:
+                            $contact_type = "waiting";
+                            break;
+                    }
+                }
+
+                $user->contact_type = $contact_type;
             } else {
                 $user = $this->auth_user;
             }
@@ -70,40 +94,56 @@ class ProfileController extends BaseController
     {
         try {
             $type = $request->get("type");
-            if ($request->hasFile("image")) {
-                $fileUpload = new FileUpload;
-                $file_path = $fileUpload->save($request->file("image"), "image");
 
-                if ($request->filled("old_image_id")) {
-                    $image = $this->auth_user->profile_images()->where(function ($q) use ($type) {
-                        if ($type == 1) {
-                            $q->where("type", ProfileImage::PROFILE_IMAGE_TYPES["profile"]);
-                        } else {
-                            $q->where("type", ProfileImage::PROFILE_IMAGE_TYPES["featured"]);
-                        }
-                    })->where("id", $request->get("old_image_id"))->first();
-
-                    if (!$image) {
-                        return $this->failResponse([
-                            "message" => "Image not found."
-                        ], 404);
+            if ($request->filled("old_image_id")) {
+                $image = $this->auth_user->profile_images()->where(function ($q) use ($type) {
+                    if ($type == 1) {
+                        $q->where("type", ProfileImage::PROFILE_IMAGE_TYPES["profile"]);
+                    } else {
+                        $q->where("type", ProfileImage::PROFILE_IMAGE_TYPES["featured"]);
                     }
+                })->where("id", $request->get("old_image_id"))->first();
+
+                if (!$image) {
+                    return $this->failResponse([
+                        "message" => "Image not found."
+                    ], 404);
+                }
+
+                if ($request->hasFile("image")) {
+                    $fileUpload = new FileUpload;
+                    $file_path = $fileUpload->save($request->file("image"), "image");
 
                     $image->update([
-                        "url" => env("APP_URL") . $file_path
+                        "url" => $file_path
                     ]);
 
                     $image->refresh();
+
+                    return $this->successResponse([
+                        "image" => $image
+                    ]);
                 } else {
-                    $image = $this->auth_user->profile_images()->create([
-                        "url" => env("APP_URL") . $file_path,
-                        "type" => $type == 1 ? ProfileImage::PROFILE_IMAGE_TYPES["profile"] : ProfileImage::PROFILE_IMAGE_TYPES["featured"]
+                    $image->delete();
+
+                    return $this->successResponse([
+                        "image" => null
                     ]);
                 }
+            } else {
+                if ($request->hasFile("image")) {
+                    $fileUpload = new FileUpload;
+                    $file_path = $fileUpload->save($request->file("image"), "image");
 
-                return $this->successResponse([
-                    "image" => $image
-                ]);
+                    $image = $this->auth_user->profile_images()->create([
+                        "url" => $file_path,
+                        "type" => $type == 1 ? ProfileImage::PROFILE_IMAGE_TYPES["profile"] : ProfileImage::PROFILE_IMAGE_TYPES["featured"]
+                    ]);
+
+                    return $this->successResponse([
+                        "image" => $image
+                    ]);
+                }
             }
 
             return $this->failResponse([
