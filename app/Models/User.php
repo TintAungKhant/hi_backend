@@ -46,7 +46,7 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    protected $appends = ["online"];
+    protected $appends = ["online", "main_profile_image"];
 
     const CONTACT_USER_TYPES = [
         "waiting" => 1,
@@ -57,6 +57,19 @@ class User extends Authenticatable
     public function getOnlineAttribute()
     {
         return $this->last_seen >= \Carbon\Carbon::now()->subMinutes(2);
+    }
+
+    public function getMainProfileImageAttribute()
+    {
+        $main_profile_image = null;
+        if ($this->profile_images) {
+            $this->profile_images->each(function ($image) use (&$main_profile_image) {
+                if ($image->type == ProfileImage::PROFILE_IMAGE_TYPES["profile"]) {
+                    $main_profile_image = $image;
+                }
+            });
+        }
+        return $main_profile_image;
     }
 
     public function contacts()
@@ -79,7 +92,7 @@ class User extends Authenticatable
         return $this->hasMany(Message::class);
     }
 
-    public function getNewContacts(?int $gender = null, int $limit = 20)
+    public function getNewContacts(?int $gender = null, int $limit = 30)
     {
         return $this->whereNotIn("id", $this->contacts->pluck("id"))->where(function ($q) use ($gender) {
             if ($gender) {
@@ -88,7 +101,7 @@ class User extends Authenticatable
         })->inRandomOrder()->take($limit)->get();
     }
 
-    public function getContacts(?string $type = null, int $page = 1, int $limit = 20)
+    public function getContacts(?string $type = null, int $page = 1, int $limit = 30)
     {
         $offset = ($page - 1) * $limit;
 
@@ -124,8 +137,6 @@ class User extends Authenticatable
                 $q->find($user->id);
             }
         ])->contacts;
-
-        $contacts->each->makeHidden('pivot');
 
         return $contacts->first();
     }
@@ -196,7 +207,7 @@ class User extends Authenticatable
         return null;
     }
 
-    public function getConversations(?Conversation $last_conversation = null, int $limit = 20)
+    public function getConversations(?Conversation $last_conversation = null, int $limit = 30)
     {
         return $this->load(["conversations" => function ($q) use ($last_conversation, $limit) {
             if ($last_conversation) {

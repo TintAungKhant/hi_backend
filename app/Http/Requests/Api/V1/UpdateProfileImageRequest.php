@@ -26,7 +26,7 @@ class UpdateProfileImageRequest extends BaseRequest
     {
         $rules = [
             "type" => "required|integer",
-            "image" => "sometimes|image",
+            "image" => "sometimes|image|max:2048",
             "old_image_id" => "sometimes|integer"
         ];
 

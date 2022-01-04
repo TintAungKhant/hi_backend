@@ -26,7 +26,7 @@ class Conversation extends Model
         return $this->hasOne(Message::class)->with("messageable")->latest();
     }
 
-    public function getMessages(?Message $last_message)
+    public function getMessages(?Message $last_message=null)
     {
         return $this->load(["messages" => function ($q) use ($last_message) {
             if ($last_message) {
