@@ -179,9 +179,30 @@ class User extends Authenticatable
 
     public function deleteContact(User $user)
     {
+        $conversations = $this->contacts()->wherePivot("type", self::CONTACT_USER_TYPES["friend"])->where("users.id", $user->id)->first()
+            ->load(["conversations" => function ($q) {
+                $q->whereHas("users", function ($q2) {
+                    $q2->where("users.id", $this->id);
+                })->has("users", "=", 2);
+                $q->with(["messages" => function ($q3) {
+                    $q3->with("messageable");
+                }]);
+            }])->conversations;
+
+        $conversation = $conversations->first();
+        if ($conversation) {
+            $conversation->messages->each(function($message){
+                $message->messageable()->delete();
+                $message->messageable()->detach();
+                $message->delete();
+            });
+            $conversation->users()->detach([$user->id, $this->id]);
+            $conversation->delete();
+        }
         $this->contacts()->detach($user->id);
         $user->contacts()->detach($this->id);
     }
+
 
     public function firstOrCreateConversation(User $user)
     {
