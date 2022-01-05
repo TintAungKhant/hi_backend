@@ -30,7 +30,8 @@ class AuthController extends BaseController
             Auth::login($user);
 
             return $this->successResponse([
-                "user" => Auth::user()
+                "user" => Auth::user(),
+                "token" => Auth::user()->createToken(Auth::user()->id)->plainTextToken
             ]);
         } catch (Exception $e) {
             throw new InternalErrorException($e);
@@ -42,7 +43,8 @@ class AuthController extends BaseController
         try {
             if (Auth::attempt($request->only("email", "password"))) {
                 return $this->successResponse([
-                    "user" => Auth::user()
+                    "user" => Auth::user(),
+                    "token" => Auth::user()->createToken(Auth::user()->id)->plainTextToken
                 ]);
             }
 
