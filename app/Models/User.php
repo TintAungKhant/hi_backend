@@ -94,7 +94,7 @@ class User extends Authenticatable
 
     public function getNewContacts(?int $gender = null, int $limit = 30)
     {
-        return $this->whereNotIn("id", $this->contacts->pluck("id"))->where(function ($q) use ($gender) {
+        return $this->whereNotIn("id", array_merge($this->contacts->pluck("id")->toArray(), [$this->id]))->where(function ($q) use ($gender) {
             if ($gender) {
                 $q->where("gender", $gender);
             }
