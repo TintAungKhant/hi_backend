@@ -33,7 +33,7 @@ class Conversation extends Model
                 $q->where("messages.id", "<>", $last_message->id);
                 $q->where("created_at", "<=", $last_message->created_at);
             }
-            $q->with("messageable")->limit(20)->orderBy("created_at", "DESC");
+            $q->with("messageable")->limit(30)->orderBy("created_at", "DESC");
         }])->makeHidden("pivot");
     }
 }

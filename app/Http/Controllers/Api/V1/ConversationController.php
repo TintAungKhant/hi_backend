@@ -60,7 +60,15 @@ class ConversationController extends BaseController
                     ], 400);
                 }
 
-                $conversation_id = $this->auth_user->firstOrCreateConversation($user)->id;
+                $conversation = $this->auth_user->firstOrCreateConversation($user);
+
+                if(!$conversation){
+                    return $this->failResponse([
+                        "message" => "User is not friend with you."
+                    ], 400);
+                }
+
+                $conversation_id = $conversation->id;
             }
 
             $conversation = $this->auth_user->getConversation($conversation_id);

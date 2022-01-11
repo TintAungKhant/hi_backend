@@ -92,21 +92,31 @@ class User extends Authenticatable
         return $this->hasMany(Message::class);
     }
 
-    public function getNewContacts(?int $gender = null, int $limit = 30)
+    public function posts()
+    {
+        return $this->hasMany(Post::class);
+    }
+
+    public function likes()
+    {
+        return $this->hasMany(Like::class);
+    }
+
+    public function getNewContacts(?int $gender = null)
     {
         return $this->whereNotIn("id", array_merge($this->contacts->pluck("id")->toArray(), [$this->id]))->where(function ($q) use ($gender) {
             if ($gender) {
                 $q->where("gender", $gender);
             }
-        })->inRandomOrder()->take($limit)->get();
+        })->inRandomOrder()->take(30)->get();
     }
 
-    public function getContacts(?string $type = null, int $page = 1, int $limit = 30)
+    public function getContacts(?string $type = null, int $page = 1)
     {
-        $offset = ($page - 1) * $limit;
+        $offset = ($page - 1) * 30;
 
         $contacts =  $this->load([
-            "contacts" => function ($q) use ($offset, $limit, $type) {
+            "contacts" => function ($q) use ($offset, $type) {
                 if ($type == "online" || $type == "offline") {
                     $q->wherePivot("type", self::CONTACT_USER_TYPES["friend"])->where(function ($q2) use ($type) {
                         if ($type == "online") {
@@ -120,7 +130,7 @@ class User extends Authenticatable
                 } else if ($type == "added") {
                     $q->wherePivot("type", self::CONTACT_USER_TYPES["waiting"]);
                 }
-                $q->offset($offset)->limit($limit)->get();
+                $q->offset($offset)->limit(30)->get();
             }
         ])->contacts;
 
@@ -179,8 +189,9 @@ class User extends Authenticatable
 
     public function deleteContact(User $user)
     {
-        $conversations = $this->contacts()->wherePivot("type", self::CONTACT_USER_TYPES["friend"])->where("users.id", $user->id)->first()
-            ->load(["conversations" => function ($q) {
+        $contact = $this->contacts()->where("users.id", $user->id)->first();
+        if ($contact) {
+            $conversations = $contact->load(["conversations" => function ($q) {
                 $q->whereHas("users", function ($q2) {
                     $q2->where("users.id", $this->id);
                 })->has("users", "=", 2);
@@ -189,16 +200,18 @@ class User extends Authenticatable
                 }]);
             }])->conversations;
 
-        $conversation = $conversations->first();
-        if ($conversation) {
-            $conversation->messages->each(function($message){
-                $message->messageable()->delete();
-                $message->messageable()->detach();
-                $message->delete();
-            });
-            $conversation->users()->detach([$user->id, $this->id]);
-            $conversation->delete();
+            $conversation = $conversations->first();
+            if ($conversation) {
+                $conversation->messages->each(function ($message) {
+                    $message->messageable()->delete();
+                    $message->messageable()->detach();
+                    $message->delete();
+                });
+                $conversation->users()->detach([$user->id, $this->id]);
+                $conversation->delete();
+            }
         }
+
         $this->contacts()->detach($user->id);
         $user->contacts()->detach($this->id);
     }
@@ -228,20 +241,62 @@ class User extends Authenticatable
         return null;
     }
 
-    public function getConversations(?Conversation $last_conversation = null, int $limit = 30)
+    public function getConversations(?Conversation $last_conversation = null)
     {
-        return $this->load(["conversations" => function ($q) use ($last_conversation, $limit) {
+        return $this->load(["conversations" => function ($q) use ($last_conversation) {
             if ($last_conversation) {
                 $q->where("conversations.id", "<>", $last_conversation->id);
                 $q->where("conversations.updated_at", "<=", $last_conversation->updated_at);
             }
             $q->with("latest_message");
-            $q->with("users")->whereHas("messages")->limit($limit)->orderBy("conversations.updated_at", "DESC");
+            $q->with("users")->whereHas("messages")->limit(30)->orderBy("conversations.updated_at", "DESC");
         }])->conversations->makeHidden("pivot");
     }
 
     public function getConversation(int $id)
     {
         return $this->conversations()->with("users")->where("id", $id)->first();
+    }
+
+    public function getPost(?int $post_id)
+    {
+        return $this->posts()->find($post_id);
+    }
+
+    public function createPost(string $content, ?string $url)
+    {
+        return $this->posts()->create([
+            "content" => $content,
+            "image_url" => $url
+        ]);
+    }
+
+    public function updatePost(Post $post, string $content, ?string $url, ?int $delete_image)
+    {
+        if ($delete_image) {
+            $url = null;
+        } else {
+            if (!$url) {
+                $url = $post->url;
+            }
+        }
+        $post->update([
+            "content" => $content,
+            "image_url" => $url
+        ]);
+
+        return $post->refresh();
+    }
+
+    public function toggleLike(Post $post)
+    {
+        $like = $post->likes()->where("user_id", $this->id)->first();
+        if ($like) {
+            $like->delete();
+        } else {
+            $like = $this->likes()->save($post->likes()->make([]));
+        }
+
+        return;
     }
 }
