@@ -221,7 +221,7 @@ class User extends Authenticatable
     {
         $contact = $this->contacts()->wherePivot("type", self::CONTACT_USER_TYPES["friend"])->where("users.id", $user->id)->first();
         if ($contact) {
-            $conversations = $this->contacts()->wherePivot("type", self::CONTACT_USER_TYPES["friend"])->where("users.id", $user->id)->first()
+            $conversations = $contact
                 ->load(["conversations" => function ($q) {
                     $q->whereHas("users", function ($q2) {
                         $q2->where("users.id", $this->id);

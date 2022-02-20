@@ -41,5 +41,10 @@ Route::group(["prefix" => "v1", "middleware" => "update_last_seen"], function ()
         Route::get("conversations/show", [\App\Http\Controllers\Api\V1\ConversationController::class, "show"]);
         Route::get("conversations/messages", [\App\Http\Controllers\Api\V1\MessageController::class, "get"]);
         Route::post("conversations/messages", [\App\Http\Controllers\Api\V1\MessageController::class, "store"]);
+
+        Route::get("posts", [\App\Http\Controllers\Api\V1\PostController::class, "get"]);
+        Route::post("posts/store", [\App\Http\Controllers\Api\V1\PostController::class, "store"]);
+        Route::post("posts/{post_id}/update", [\App\Http\Controllers\Api\V1\PostController::class, "update"]);
+        Route::get("posts/{post_id}/toggle-like", [\App\Http\Controllers\Api\V1\PostController::class, "toggleLike"]);
     });
 });
